@@ -1,0 +1,21 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "5d8032f1-afca-40db-babe-51c64aea656e": {
+      "ProjectGuid": "5d8032f1-afca-40db-babe-51c64aea656e",
+      "DisplayName": "Solution Items",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    },
+    "b98ccf27-d63c-4c9c-9700-f95f36a1e9cf": {
+      "ProjectGuid": "b98ccf27-d63c-4c9c-9700-f95f36a1e9cf",
+      "DisplayName": "TaxiCentral.API",
+      "ColorIndex": 1
+    }
+  },
+  "NextColorIndex": 2
+}
