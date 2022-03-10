@@ -1,7 +1,15 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using TaxiCentral.API.Infrastructure;
+using TaxiCentral.API.Infrastructure.Repositories;
+using TaxiCentral.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(x =>
 {
     x.ReturnHttpNotAcceptable = true;
+    x.OutputFormatters.RemoveType<StringOutputFormatter>();
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -42,6 +51,7 @@ builder.Services.AddSwaggerGen(x =>
     });
 });
 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(x =>
     {
@@ -78,6 +88,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    });
 //});
 
+builder.Services.AddDbContext<TaxiCentralContext>(x =>
+{
+    var migrationsAssembly = Assembly.GetExecutingAssembly().GetName().Name;
+    x.UseSqlServer(builder.Configuration["ConnectionString"], 
+        y => y.MigrationsAssembly(migrationsAssembly));
+});
+
+builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<IIdentityService, IdentityService>();
+builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+builder.Services.AddScoped<IRideRepository, RideRepository>();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -93,6 +117,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.MapControllers().RequireAuthorization();
+app.MapControllers()
+    .RequireAuthorization();
 
 app.Run();

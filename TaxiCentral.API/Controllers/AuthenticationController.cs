@@ -1,10 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using TaxiCentral.API.Infrastructure.Repositories;
 
 namespace TaxiCentral.API.Controllers
 {
@@ -14,18 +14,20 @@ namespace TaxiCentral.API.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly IDriverRepository _driverRepository;
 
-        public AuthenticationController(IConfiguration configuration)
+        public AuthenticationController(IConfiguration configuration, IDriverRepository driverRepository)
         {
             _configuration = configuration 
                              ?? throw new ArgumentNullException(nameof(configuration));
+            _driverRepository = driverRepository;
         }
 
-        [HttpPost]
-        public ActionResult<string> Authenticate(string pin)
+        [HttpPost("driver")]
+        public async Task<ActionResult<string>> AuthenticateDriver(string pin)
         {
             // validate user
-            var user = ValidateUserCredentials(pin);
+            var user = await _driverRepository.GetSingle(x => x.Pin == pin);
             if (user == null)
             {
                 return Unauthorized();
@@ -41,8 +43,7 @@ namespace TaxiCentral.API.Controllers
             {
                 new("sub", user.Id.ToString()),
                 new("given_name", user.Name),
-                new("family_name", user.Surname),
-                new("city", user.City)
+                new("family_name", user.Surname)
             };
 
             var jwtSecurityToken = new JwtSecurityToken(
@@ -55,31 +56,6 @@ namespace TaxiCentral.API.Controllers
 
             var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             return Ok(token);
-        }
-
-        private User? ValidateUserCredentials(string pin)
-        {
-            if (string.IsNullOrEmpty(pin))
-            {
-                return null;
-            }
-
-            //todo: check against db
-            return new User()
-            {
-                Id = Guid.NewGuid(),
-                Name = "Darko",
-                Surname = "Meshkovski",
-                City = "Bitola"
-            };
-        }
-
-        private class User
-        {
-           public Guid Id { get; set; }
-           public string Name { get; set; }
-           public string Surname { get; set; }
-           public string City { get; set; }
         }
     }
 }
