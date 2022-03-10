@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Auth\" />
-    <Folder Include="Infrastructure\Exceptions\" />
     <Folder Include="Infrastructure\Filters\" />
     <Folder Include="Infrastructure\Middlewares\" />
   </ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using TaxiCentral.API.Infrastructure.Exceptions;
 using TaxiCentral.API.Infrastructure.Repositories;
 using TaxiCentral.API.Models;
 using TaxiCentral.API.Services;
@@ -82,7 +83,7 @@ namespace TaxiCentral.API.Controllers
 
             if (ride.Status == RideStatus.Complete)
             {
-                return BadRequest();
+                return BadRequest(RideException.RIDE_IS_COMPLETE);
             }
 
             _mapper.Map(model, ride);

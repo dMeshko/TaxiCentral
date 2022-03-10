@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using TaxiCentral.API.Infrastructure.Exceptions;
 using TaxiCentral.API.Infrastructure.Repositories;
 using TaxiCentral.API.Models;
 using TaxiCentral.API.ViewModels;
@@ -46,7 +47,7 @@ namespace TaxiCentral.API.Controllers
 
             if (await _driverRepository.AlreadyExists(driver))
             {
-                return BadRequest();
+                return BadRequest(DriverException.ALREADY_EXISTS);
             }
 
             await _driverRepository.Add(driver);
@@ -83,7 +84,7 @@ namespace TaxiCentral.API.Controllers
 
             if (await _driverRepository.AlreadyExists(driver))
             {
-                return BadRequest();
+                return BadRequest(DriverException.ALREADY_EXISTS);
             }
 
             await _driverRepository.Update(driver);
