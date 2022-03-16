@@ -22,32 +22,43 @@ namespace TaxiCentral.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<DriverViewModel>> GetDrivers()
         {
             var drivers = _driverRepository.GetAll().ToList();
+            if (!drivers.Any())
+            {
+                return NotFound(DriverExceptionMessage.NO_DRIVERS);
+            }
+
             return Ok(_mapper.Map<IEnumerable<DriverViewModel>>(drivers));
         }
 
         [HttpGet("{id:guid}", Name = nameof(GetDriver))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<DriverViewModel>> GetDriver(Guid id)
         {
             var driver = await _driverRepository.GetSingle(id);
             if (driver == null)
             {
-                return NotFound();
+                return NotFound(DriverExceptionMessage.NOT_FOUND);
             }
 
             return Ok(_mapper.Map<DriverViewModel>(driver));
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<DriverViewModel>> AddDriver(CreateDriverViewModel model)
         {
             var driver = _mapper.Map<Driver>(model);
 
             if (await _driverRepository.AlreadyExists(driver))
             {
-                return BadRequest(DriverException.ALREADY_EXISTS);
+                return BadRequest(DriverExceptionMessage.ALREADY_EXISTS);
             }
 
             await _driverRepository.Add(driver);
@@ -59,21 +70,19 @@ namespace TaxiCentral.API.Controllers
         }
 
         [HttpPatch("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> UpdateDriver(Guid id, JsonPatchDocument<UpdateDriverViewModel> patchDocument)
         {
             var driver = await _driverRepository.GetSingle(id);
             if (driver == null)
             {
-                return NotFound();
+                return NotFound(DriverExceptionMessage.NOT_FOUND);
             }
 
             var driverViewModel = _mapper.Map<UpdateDriverViewModel>(driver);
             patchDocument.ApplyTo(driverViewModel);
-            
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             if (!TryValidateModel(driverViewModel))
             {
@@ -84,7 +93,7 @@ namespace TaxiCentral.API.Controllers
 
             if (await _driverRepository.AlreadyExists(driver))
             {
-                return BadRequest(DriverException.ALREADY_EXISTS);
+                return BadRequest(DriverExceptionMessage.ALREADY_EXISTS);
             }
 
             await _driverRepository.Update(driver);
@@ -94,12 +103,14 @@ namespace TaxiCentral.API.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> DeleteDriver(Guid id)
         {
             var driver = await _driverRepository.GetSingle(id);
             if (driver == null)
             {
-                return NotFound();
+                return NotFound(DriverExceptionMessage.NOT_FOUND);
             }
 
             await _driverRepository.Delete(driver);

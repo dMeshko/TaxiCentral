@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   taxi-central-api:
-    image: dmeshko/taxicentralapi
+    image: dmeshko/taxicentralapi:2.0
     build:
       context: .
       dockerfile: TaxiCentral.API/Dockerfile

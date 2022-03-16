@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using TaxiCentral.API.Infrastructure.Exceptions;
 using TaxiCentral.API.Infrastructure.Repositories;
@@ -26,44 +25,76 @@ namespace TaxiCentral.API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get all rides in the system
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<RideViewModel>>> GetRides()
         {
             var rides = await _rideRepository.AllIncluding(x => x.Driver);
+            if (!rides.Any())
+            {
+                return NotFound(RideExceptionMessage.NO_RIDES);
+            }
+            
             return Ok(_mapper.Map<IEnumerable<RideViewModel>>(rides));
         }
 
         [HttpGet("/api/drivers/{driverId:guid}/rides")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<RideViewModel>>> GetRidesForDriver(Guid driverId)
         {
             var rides = await _rideRepository.GetAllForDriver(driverId);
+            if (!rides.Any())
+            {
+                return NotFound(RideExceptionMessage.NO_RIDES);
+            }
+
             return Ok(_mapper.Map<IEnumerable<RideViewModel>>(rides));
         }
 
         [HttpGet("{id:guid}", Name = nameof(GetRide))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<RideViewModel>> GetRide(Guid id)
         {
-            var ride = await _rideRepository.GetSingle(id);
+            var ride = await _rideRepository.GetSingle(x => x.Id == id, x => x.Driver);
             if (ride == null)
             {
-                return NotFound();
+                return NotFound(RideExceptionMessage.NOT_FOUND);
             }
-
-            return Ok(ride);
+             
+            return Ok(_mapper.Map<RideViewModel>(ride));
         }
 
+        //todo
+        public async Task<ActionResult<RideViewModel>> BroadcastRide(BroadcastRideViewModel model)
+        {
+            var areaRadius = 3000; // 3000m/3km //todo: get this from settings
+            var driverInArea = _driverRepository.GetDriversInArea(_mapper.Map<LatLng>(model.TargetStartingPoint), areaRadius);
+            return null;
+        }
+
+        //todo: add reon
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<RideViewModel>> StartRide(StartRideViewModel model)
         {
             var driverId = _identityService.GetUserId();
             var driver = await _driverRepository.GetSingle(driverId);
             if (driver == null)
             {
-                return NotFound();
+                return NotFound(DriverExceptionMessage.NOT_FOUND);
             }
 
             var ride = _mapper.Map<Ride>(model);
             ride.Driver = driver;
+            ride.Status = RideStatus.Current;
             await _rideRepository.Add(ride);
             await _rideRepository.Commit();
 
@@ -73,17 +104,20 @@ namespace TaxiCentral.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> FinishRide(Guid id, FinishRideViewModel model)
         {
             var ride = await _rideRepository.GetSingle(id);
             if (ride == null)
             {
-                return NotFound();
+                return NotFound(RideExceptionMessage.NOT_FOUND);
             }
 
             if (ride.Status == RideStatus.Complete)
             {
-                return BadRequest(RideException.RIDE_IS_COMPLETE);
+                return BadRequest(RideExceptionMessage.ALREADY_COMPLETE);
             }
 
             _mapper.Map(model, ride);

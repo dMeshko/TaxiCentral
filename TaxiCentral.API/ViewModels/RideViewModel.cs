@@ -58,13 +58,38 @@ namespace TaxiCentral.API.ViewModels
         }
     }
 
+    public class BroadcastRideViewModel
+    {
+        public LatLngViewModel TargetStartingPoint { get; set; } = null!;
+        public LatLngViewModel TargetDestinationPoint { get; set; } = null!;
+        public string? Comment { get; set; }
+    }
+
+    public class BroadcastRideViewModelValidator : AbstractValidator<BroadcastRideViewModel>
+    {
+        public BroadcastRideViewModelValidator()
+        {
+            RuleFor(x => x.TargetStartingPoint.Latitude)
+                .NotEmpty();
+
+            RuleFor(x => x.TargetStartingPoint.Longitude)
+                .NotEmpty();
+
+            RuleFor(x => x.TargetDestinationPoint.Latitude)
+                .NotEmpty();
+
+            RuleFor(x => x.TargetDestinationPoint.Longitude)
+                .NotEmpty();
+        }
+    }
+
     public class RideProfile : Profile
     {
         public RideProfile()
         {
             CreateMap<Ride, RideViewModel>();
             CreateMap<StartRideViewModel, Ride>();
-            CreateMap<Ride, FinishRideViewModel>();
+            CreateMap<FinishRideViewModel, Ride>();
         }
     }
 }

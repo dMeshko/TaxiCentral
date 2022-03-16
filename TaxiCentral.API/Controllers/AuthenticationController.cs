@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TaxiCentral.API.Infrastructure.Exceptions;
 using TaxiCentral.API.Infrastructure.Repositories;
 
 namespace TaxiCentral.API.Controllers
@@ -18,22 +19,28 @@ namespace TaxiCentral.API.Controllers
 
         public AuthenticationController(IConfiguration configuration, IDriverRepository driverRepository)
         {
-            _configuration = configuration 
-                             ?? throw new ArgumentNullException(nameof(configuration));
+            _configuration = configuration;
             _driverRepository = driverRepository;
         }
 
         [HttpPost("driver")]
-        public async Task<ActionResult<string>> AuthenticateDriver(string pin)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<string>> AuthenticateDriver(string? pin)
         {
             // validate user
-            var user = await _driverRepository.GetSingle(x => x.Pin == pin);
-            if (user == null)
+            var driver = await _driverRepository.GetDriverByPin(pin);
+            if (driver == null)
             {
-                return Unauthorized();
+                return NotFound(DriverExceptionMessage.NOT_FOUND);
             }
 
             // create a token
+            if (string.IsNullOrWhiteSpace(_configuration["Authentication:Secret"]))
+            {
+                throw new AppException(AppExceptionMessage.MISSING_AUTHENTICATION_SECRET);
+            }
+
             var securityKey =
                 new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Authentication:Secret"]));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -41,10 +48,20 @@ namespace TaxiCentral.API.Controllers
             // claims
             var claimsForToken = new List<Claim>
             {
-                new("sub", user.Id.ToString()),
-                new("given_name", user.Name),
-                new("family_name", user.Surname)
+                new("sub", driver.Id.ToString()),
+                new("given_name", driver.Name),
+                new("family_name", driver.Surname)
             };
+
+            if (string.IsNullOrWhiteSpace(_configuration["Authentication:Issuer"]))
+            {
+                throw new AppException(AppExceptionMessage.MISSING_AUTHENTICATION_ISSUER);
+            }
+
+            if (string.IsNullOrWhiteSpace(_configuration["Authentication:Audience"]))
+            {
+                throw new AppException(AppExceptionMessage.MISSING_AUTHENTICATION_AUDIENCE);
+            }
 
             var jwtSecurityToken = new JwtSecurityToken(
                 _configuration["Authentication:Issuer"],

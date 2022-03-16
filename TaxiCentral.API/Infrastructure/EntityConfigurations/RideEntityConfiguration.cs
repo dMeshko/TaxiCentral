@@ -17,16 +17,28 @@ namespace TaxiCentral.API.Infrastructure.EntityConfigurations
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
-            builder.OwnsOne(x => x.StartingPoint, y =>
+            builder.OwnsOne(x => x.TargetStartingPoint, y =>
             {
-                y.Property(w => w.Latitude).HasColumnName("StartingLatitude").IsRequired();
-                y.Property(w => w.Longitude).HasColumnName("StartingLongitude").IsRequired();
+                y.Property(w => w.Latitude).HasColumnName("TargetStartingLatitude").IsRequired();
+                y.Property(w => w.Longitude).HasColumnName("TargetStartingLongitude").IsRequired();
             });
 
-            builder.OwnsOne(x => x.DestinationPoint, y =>
+            builder.OwnsOne(x => x.TargetDestinationPoint, y =>
             {
-                y.Property(w => w.Latitude).HasColumnName("DestinationLatitude");
-                y.Property(w => w.Longitude).HasColumnName("DestinationLongitude");
+                y.Property(w => w.Latitude).HasColumnName("TargetDestinationLatitude");
+                y.Property(w => w.Longitude).HasColumnName("TargetDestinationLongitude");
+            });
+
+            builder.OwnsOne(x => x.ActualStartingPoint, y =>
+            {
+                y.Property(w => w.Latitude).HasColumnName("ActualStartingLatitude").IsRequired();
+                y.Property(w => w.Longitude).HasColumnName("ActualStartingLongitude").IsRequired();
+            });
+
+            builder.OwnsOne(x => x.ActualDestinationPoint, y =>
+            {
+                y.Property(w => w.Latitude).HasColumnName("ActualDestinationLatitude");
+                y.Property(w => w.Longitude).HasColumnName("ActualDestinationLongitude");
             });
 
             builder.Property(x => x.StartTime)
@@ -40,6 +52,10 @@ namespace TaxiCentral.API.Infrastructure.EntityConfigurations
             builder.Property(x => x.Mileage).IsRequired(false);
 
             builder.Property(x => x.Cost).IsRequired(false);
+
+            builder.Property(x => x.EstimatedTimeOfArrival).IsRequired(false);
+
+            builder.Property(x => x.TimeOfArrival).IsRequired(false);
 
             builder.Property(x => x.Status)
                 .HasConversion<int>()

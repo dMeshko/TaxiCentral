@@ -15,7 +15,27 @@
       "ProjectGuid": "b98ccf27-d63c-4c9c-9700-f95f36a1e9cf",
       "DisplayName": "TaxiCentral.API",
       "ColorIndex": 1
+    },
+    "b9232acc-440c-4e94-b1cd-a2c3b4a49461": {
+      "ProjectGuid": "b9232acc-440c-4e94-b1cd-a2c3b4a49461",
+      "DisplayName": "TaxiCentral.UnitTests",
+      "ColorIndex": 2
+    },
+    "1a91d7db-8ca1-498a-8b61-04ff64a44e11": {
+      "ProjectGuid": "1a91d7db-8ca1-498a-8b61-04ff64a44e11",
+      "DisplayName": "TaxiCentral.UnitTests",
+      "ColorIndex": 3
+    },
+    "e06464aa-06c2-4b16-9ba3-83dbd6cbd469": {
+      "ProjectGuid": "e06464aa-06c2-4b16-9ba3-83dbd6cbd469",
+      "DisplayName": "TaxiCentral.FunctionalTests",
+      "ColorIndex": 4
+    },
+    "cdaf83c3-e9a4-452c-af83-3eeb2916eb13": {
+      "ProjectGuid": "cdaf83c3-e9a4-452c-af83-3eeb2916eb13",
+      "DisplayName": "TaxiCentral.UnitTests",
+      "ColorIndex": 5
     }
   },
-  "NextColorIndex": 2
+  "NextColorIndex": 6
 }

@@ -12,7 +12,7 @@ namespace TaxiCentral.API.Infrastructure
         {
             //delete, useless
             modelBuilder.Entity<Driver>()
-                .HasData(new Driver("Darko", "Meshkovski", "1234"));
+                .HasData(new Driver("Darko", "Meshkovski", "1234") { Id = Guid.NewGuid()});
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 

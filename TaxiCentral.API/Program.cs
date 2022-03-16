@@ -1,14 +1,18 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TaxiCentral.API.Infrastructure;
+using TaxiCentral.API.Infrastructure.Exceptions;
+using TaxiCentral.API.Infrastructure.Helpers;
 using TaxiCentral.API.Infrastructure.Repositories;
 using TaxiCentral.API.Services;
 
@@ -107,12 +111,44 @@ builder.Services.AddFluentValidation();
 
 var app = builder.Build();
 
+//if (app.Environment.IsProduction())
+//{
+    app.UseExceptionHandler(x =>
+    {
+        x.Run(async context =>
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+
+            var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+            if (exceptionHandlerFeature != null)
+            {
+                if (exceptionHandlerFeature.Error is not AppException applicationException)
+                {
+                    const string serverErrorMessage = "An unexpected error occurred.  Please try again later.";
+                    context.Response.AddApplicationError(serverErrorMessage);
+
+                    // log the error
+                    app.Logger.LogError(context.Response.StatusCode, exceptionHandlerFeature.Error,
+                        exceptionHandlerFeature.Error.Message);
+
+                    await context.Response.WriteAsync(serverErrorMessage);
+                    return;
+                }
+
+                context.Response.AddApplicationError(exceptionHandlerFeature.Error.Message, applicationException.IsJson);
+                await context.Response.WriteAsync(exceptionHandlerFeature.Error.Message);
+            }
+        });
+    });
+//}
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 app.UseHttpsRedirection();
 
@@ -122,5 +158,14 @@ app.UseAuthorization();
 
 app.MapControllers()
     .RequireAuthorization();
+
+//todo: test this!!
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<TaxiCentralContext>();
+    context.Database.Migrate();
+}
 
 app.Run();
