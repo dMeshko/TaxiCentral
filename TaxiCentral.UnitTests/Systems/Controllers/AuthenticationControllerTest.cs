@@ -9,6 +9,7 @@ using TaxiCentral.API.Controllers;
 using TaxiCentral.API.Infrastructure.Exceptions;
 using TaxiCentral.API.Infrastructure.Repositories;
 using TaxiCentral.API.Models;
+using TaxiCentral.UnitTests.Fixtures;
 using Xunit;
 
 namespace TaxiCentral.UnitTests
@@ -30,7 +31,7 @@ namespace TaxiCentral.UnitTests
         public async Task AuthenticateDriver_Returns_NotFound_ForWrongPin(string pin)
         {
             // Arrange
-            var fakeDriver = GetFakeDriver();
+            var fakeDriver = DriversFixture.GetFakeDriver();
 
             _driverRepository.Setup(x => x.GetDriverByPin(fakeDriver.Pin))
                 .ReturnsAsync(fakeDriver);
@@ -50,7 +51,7 @@ namespace TaxiCentral.UnitTests
         public async Task AuthenticateDriver_Returns_Ok()
         {
             // Arrange
-            var fakeDriver = GetFakeDriver();
+            var fakeDriver = DriversFixture.GetFakeDriver();
 
             _driverRepository.Setup(x => x.GetDriverByPin(fakeDriver.Pin))
                 .ReturnsAsync(fakeDriver);
@@ -70,14 +71,15 @@ namespace TaxiCentral.UnitTests
             // Assert
             result.Should().BeOfType<ActionResult<string>>()
                 .Subject.Result.Should().BeOfType<OkObjectResult>()
-                .Subject.Value.Should().BeAssignableTo<string>();
+                .Subject.Value.Should().BeAssignableTo<string>()
+                .Subject.Should().NotBeNullOrWhiteSpace();
         }
 
         [Fact]
         public async Task AuthenticateDriver_ThrowsException_ForMissingAuthenticationSecretConfiguration()
         {
             // Arrange
-            var fakeDriver = GetFakeDriver();
+            var fakeDriver = DriversFixture.GetFakeDriver();
 
             _driverRepository.Setup(x => x.GetDriverByPin(fakeDriver.Pin))
                 .ReturnsAsync(fakeDriver);
@@ -101,7 +103,7 @@ namespace TaxiCentral.UnitTests
         public async Task AuthenticateDriver_ThrowsException_ForMissingAuthenticationIssuerConfiguration()
         {
             // Arrange
-            var fakeDriver = GetFakeDriver();
+            var fakeDriver = DriversFixture.GetFakeDriver();
 
             _driverRepository.Setup(x => x.GetDriverByPin(fakeDriver.Pin))
                 .ReturnsAsync(fakeDriver);
@@ -125,7 +127,7 @@ namespace TaxiCentral.UnitTests
         public async Task AuthenticateDriver_ThrowsException_ForMissingAuthenticationAudienceConfiguration()
         {
             // Arrange
-            var fakeDriver = GetFakeDriver();
+            var fakeDriver = DriversFixture.GetFakeDriver();
 
             _driverRepository.Setup(x => x.GetDriverByPin(fakeDriver.Pin))
                 .ReturnsAsync(fakeDriver);
@@ -144,11 +146,5 @@ namespace TaxiCentral.UnitTests
             await taskResult.Should().ThrowAsync<AppException>()
                 .WithMessage(AppExceptionMessage.MISSING_AUTHENTICATION_AUDIENCE);
         }
-
-        public Driver GetFakeDriver() =>
-            new("Darko", "Meshkovski", "1234")
-            {
-                Id = Guid.NewGuid()
-            };
     }
 }

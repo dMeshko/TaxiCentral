@@ -23,6 +23,8 @@ namespace TaxiCentral.API.Infrastructure.EntityConfigurations
             builder.Property(x => x.Pin)
                 .IsRequired()
                 .HasMaxLength(10);
+
+            builder.HasData(new Driver("Darko", "Meshkovski", "1234") { Id = Guid.NewGuid() });
         }
     }
 }

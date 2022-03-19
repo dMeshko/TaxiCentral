@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using TaxiCentral.API.Models;
 
 namespace TaxiCentral.API.Infrastructure
 {
@@ -10,13 +9,9 @@ namespace TaxiCentral.API.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //delete, useless
-            modelBuilder.Entity<Driver>()
-                .HasData(new Driver("Darko", "Meshkovski", "1234") { Id = Guid.NewGuid()});
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
-            base.OnModelCreating(modelBuilder);
         }
     }
 }

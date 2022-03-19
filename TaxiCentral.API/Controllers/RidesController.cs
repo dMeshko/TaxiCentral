@@ -71,13 +71,13 @@ namespace TaxiCentral.API.Controllers
             return Ok(_mapper.Map<RideViewModel>(ride));
         }
 
-        //todo
-        public async Task<ActionResult<RideViewModel>> BroadcastRide(BroadcastRideViewModel model)
-        {
-            var areaRadius = 3000; // 3000m/3km //todo: get this from settings
-            var driverInArea = _driverRepository.GetDriversInArea(_mapper.Map<LatLng>(model.TargetStartingPoint), areaRadius);
-            return null;
-        }
+        ////todo
+        //public async Task<ActionResult<RideViewModel>> BroadcastRide(BroadcastRideViewModel model)
+        //{
+        //    var areaRadius = 3000; // 3000m/3km //todo: get this from settings
+        //    var driverInArea = _driverRepository.GetDriversInArea(_mapper.Map<LatLng>(model.TargetStartingPoint), areaRadius);
+        //    return null;
+        //}
 
         //todo: add reon
         [HttpPost]

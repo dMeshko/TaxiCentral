@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -25,7 +26,6 @@ builder.Services.AddControllers(x =>
     x.ReturnHttpNotAcceptable = true;
     x.OutputFormatters.RemoveType<StringOutputFormatter>();
 });
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
@@ -55,6 +55,7 @@ builder.Services.AddSwaggerGen(x =>
         }
     });
 });
+builder.Services.AddFluentValidationRulesToSwagger();
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -150,7 +151,7 @@ var app = builder.Build();
     app.UseSwaggerUI();
 //}
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
@@ -165,7 +166,12 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<TaxiCentralContext>();
-    context.Database.Migrate();
+
+    //context.Database.EnsureCreated();
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        context.Database.Migrate();
+    }
 }
 
 app.Run();
