@@ -7,9 +7,9 @@ services:
       context: .
       dockerfile: TaxiCentral.API/Dockerfile
     environment:
-     - ConnectionString="Server=tcp:sql-server;Database=TaxiCentral;User Id=sa;Password=P@ssw0rd;"
+     #- ConnectionString="Server=tcp:sql-server;Database=TaxiCentral;User Id=sa;Password=P@ssw0rd;"
      - Authentication:Secret="ODU5YWIxN2UtNGYxYy00N2NkLWI5ZjktNDVkODZiZWI5ZTEw"
-    restart: unless-stopped
+    #restart: unless-stopped
     ports:
       - "8080:80"  # Important: In a production environment your should remove the external port
       - "4443:443"  # Important: In a production environment your should remove the external port
