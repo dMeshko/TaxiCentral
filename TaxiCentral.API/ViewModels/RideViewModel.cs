@@ -20,25 +20,24 @@ namespace TaxiCentral.API.ViewModels
 
     public class StartRideViewModel
     {
-        public LatLngViewModel StartingPoint { get; set; } = null!;
-        public string? Comment { get; set; }
+        public LatLngViewModel ActualStartingPoint { get; set; } = null!;
     }
 
     public class StartRideViewModelValidator : AbstractValidator<StartRideViewModel>
     {
         public StartRideViewModelValidator()
         {
-            RuleFor(x => x.StartingPoint.Latitude)
+            RuleFor(x => x.ActualStartingPoint.Latitude)
                 .NotEmpty();
 
-            RuleFor(x => x.StartingPoint.Longitude)
+            RuleFor(x => x.ActualStartingPoint.Longitude)
                 .NotEmpty();
         }
     }
 
     public class FinishRideViewModel
     {
-        public LatLngViewModel DestinationPoint { get; set; } = null!;
+        public LatLngViewModel ActualDestinationPoint { get; set; } = null!;
         public double Mileage { get; set; }
         public double? Cost { get; set; }
     }
@@ -47,10 +46,10 @@ namespace TaxiCentral.API.ViewModels
     {
         public FinishRideViewModelValidator()
         {
-            RuleFor(x => x.DestinationPoint.Latitude)
+            RuleFor(x => x.ActualDestinationPoint.Latitude)
                 .NotEmpty();
 
-            RuleFor(x => x.DestinationPoint.Longitude)
+            RuleFor(x => x.ActualDestinationPoint.Longitude)
                 .NotEmpty();
 
             RuleFor(x => x.Mileage)

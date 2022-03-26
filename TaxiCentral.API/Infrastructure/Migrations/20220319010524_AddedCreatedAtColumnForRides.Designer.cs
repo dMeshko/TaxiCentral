@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaxiCentral.API.Infrastructure;
 
@@ -11,9 +12,10 @@ using TaxiCentral.API.Infrastructure;
 namespace TaxiCentral.API.Infrastructure.Migrations
 {
     [DbContext(typeof(TaxiCentralContext))]
-    partial class TaxiCentralContextModelSnapshot : ModelSnapshot
+    [Migration("20220319010524_AddedCreatedAtColumnForRides")]
+    partial class AddedCreatedAtColumnForRides
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,7 +52,7 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bc5b9677-1d54-44c5-8d16-19c490dd04cb"),
+                            Id = new Guid("2867c64b-cbfa-46db-b88d-5c5bd6b8eac0"),
                             Name = "Darko",
                             Pin = "1234",
                             Surname = "Meshkovski"
@@ -63,16 +65,28 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(MAX)");
+
                     b.Property<double?>("Cost")
                         .HasColumnType("float");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DestinationTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("DriverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("EstimatedTimeOfArrival")
+                        .HasColumnType("int");
+
                     b.Property<double?>("Mileage")
                         .HasColumnType("float");
 
-                    b.Property<DateTime>("StartTime")
+                    b.Property<DateTime?>("StartTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
@@ -81,58 +95,21 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                     b.Property<int?>("TimeOfArrival")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WaitingTime")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Rides", (string)null);
-                });
-
-            modelBuilder.Entity("TaxiCentral.API.Models.Route", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ArrivalTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ClientComment")
-                        .HasColumnType("nvarchar(MAX)");
-
-                    b.Property<string>("DriverComment")
-                        .HasColumnType("nvarchar(MAX)");
-
-                    b.Property<Guid?>("DriverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("EstimatedTimeOfArrival")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ReportedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("RideId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VoidReason")
-                        .HasColumnType("nvarchar(MAX)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DriverId");
 
-                    b.HasIndex("RideId");
-
-                    b.ToTable("Routes", (string)null);
+                    b.ToTable("Rides", (string)null);
                 });
 
             modelBuilder.Entity("TaxiCentral.API.Models.Ride", b =>
                 {
+                    b.HasOne("TaxiCentral.API.Models.Driver", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.OwnsOne("TaxiCentral.API.Models.LatLng", "ActualDestinationPoint", b1 =>
                         {
                             b1.Property<Guid>("RideId")
@@ -175,27 +152,9 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                                 .HasForeignKey("RideId");
                         });
 
-                    b.Navigation("ActualDestinationPoint");
-
-                    b.Navigation("ActualStartingPoint")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TaxiCentral.API.Models.Route", b =>
-                {
-                    b.HasOne("TaxiCentral.API.Models.Driver", "Driver")
-                        .WithMany()
-                        .HasForeignKey("DriverId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TaxiCentral.API.Models.Ride", "Ride")
-                        .WithMany()
-                        .HasForeignKey("RideId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.OwnsOne("TaxiCentral.API.Models.LatLng", "TargetDestinationPoint", b1 =>
                         {
-                            b1.Property<Guid>("RouteId")
+                            b1.Property<Guid>("RideId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<double>("Latitude")
@@ -206,17 +165,17 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                                 .HasColumnType("float")
                                 .HasColumnName("TargetDestinationLongitude");
 
-                            b1.HasKey("RouteId");
+                            b1.HasKey("RideId");
 
-                            b1.ToTable("Routes");
+                            b1.ToTable("Rides");
 
                             b1.WithOwner()
-                                .HasForeignKey("RouteId");
+                                .HasForeignKey("RideId");
                         });
 
                     b.OwnsOne("TaxiCentral.API.Models.LatLng", "TargetStartingPoint", b1 =>
                         {
-                            b1.Property<Guid>("RouteId")
+                            b1.Property<Guid>("RideId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<double>("Latitude")
@@ -227,22 +186,24 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                                 .HasColumnType("float")
                                 .HasColumnName("TargetStartingLongitude");
 
-                            b1.HasKey("RouteId");
+                            b1.HasKey("RideId");
 
-                            b1.ToTable("Routes");
+                            b1.ToTable("Rides");
 
                             b1.WithOwner()
-                                .HasForeignKey("RouteId");
+                                .HasForeignKey("RideId");
                         });
+
+                    b.Navigation("ActualDestinationPoint");
+
+                    b.Navigation("ActualStartingPoint")
+                        .IsRequired();
 
                     b.Navigation("Driver");
 
-                    b.Navigation("Ride");
-
                     b.Navigation("TargetDestinationPoint");
 
-                    b.Navigation("TargetStartingPoint")
-                        .IsRequired();
+                    b.Navigation("TargetStartingPoint");
                 });
 #pragma warning restore 612, 618
         }

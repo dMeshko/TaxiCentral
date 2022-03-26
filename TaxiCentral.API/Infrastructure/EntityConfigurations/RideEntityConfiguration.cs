@@ -12,22 +12,10 @@ namespace TaxiCentral.API.Infrastructure.EntityConfigurations
 
             builder.HasKey(x => x.Id);
 
-            builder.HasOne(x => x.Driver)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-
-            builder.OwnsOne(x => x.TargetStartingPoint, y =>
-            {
-                y.Property(w => w.Latitude).HasColumnName("TargetStartingLatitude").IsRequired();
-                y.Property(w => w.Longitude).HasColumnName("TargetStartingLongitude").IsRequired();
-            });
-
-            builder.OwnsOne(x => x.TargetDestinationPoint, y =>
-            {
-                y.Property(w => w.Latitude).HasColumnName("TargetDestinationLatitude");
-                y.Property(w => w.Longitude).HasColumnName("TargetDestinationLongitude");
-            });
+            //builder.HasOne(x => x.Driver)
+            //    .WithMany()
+            //    .OnDelete(DeleteBehavior.Cascade)
+            //    .IsRequired();
 
             builder.OwnsOne(x => x.ActualStartingPoint, y =>
             {
@@ -41,19 +29,13 @@ namespace TaxiCentral.API.Infrastructure.EntityConfigurations
                 y.Property(w => w.Longitude).HasColumnName("ActualDestinationLongitude");
             });
 
-            builder.Property(x => x.StartTime)
-                .IsRequired();
+            builder.Property(x => x.StartTime);
 
             builder.Property(x => x.DestinationTime);
-
-            builder.Property(x => x.Comment)
-                .HasColumnType("nvarchar(MAX)");
 
             builder.Property(x => x.Mileage).IsRequired(false);
 
             builder.Property(x => x.Cost).IsRequired(false);
-
-            builder.Property(x => x.EstimatedTimeOfArrival).IsRequired(false);
 
             builder.Property(x => x.TimeOfArrival).IsRequired(false);
 

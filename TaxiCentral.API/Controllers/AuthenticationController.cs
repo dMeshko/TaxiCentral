@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using TaxiCentral.API.Infrastructure.Exceptions;
 using TaxiCentral.API.Infrastructure.Repositories;
+using TaxiCentral.API.Models;
 
 namespace TaxiCentral.API.Controllers
 {
@@ -23,6 +24,13 @@ namespace TaxiCentral.API.Controllers
             _driverRepository = driverRepository;
         }
 
+        /// <summary>
+        /// [Anonymous] Authenticates driver by pin
+        /// </summary>
+        /// <param name="pin">Driver's pin</param>
+        /// <returns>JWT</returns>
+        /// <remarks>tbd..</remarks>
+        /// <exception cref="AppException">Application exception, usually missing configuration</exception>
         [HttpPost("driver")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -50,7 +58,8 @@ namespace TaxiCentral.API.Controllers
             {
                 new("sub", driver.Id.ToString()),
                 new("given_name", driver.Name),
-                new("family_name", driver.Surname)
+                new("family_name", driver.Surname),
+                new(ClaimTypes.Role, UserType.Driver)
             };
 
             if (string.IsNullOrWhiteSpace(_configuration["Authentication:Issuer"]))
@@ -68,7 +77,7 @@ namespace TaxiCentral.API.Controllers
                 _configuration["Authentication:Audience"],
                 claimsForToken,
                 DateTime.UtcNow,
-                DateTime.UtcNow.AddHours(8),
+                DateTime.UtcNow.AddHours(10),
                 signingCredentials);
 
             var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaxiCentral.API.Infrastructure;
 
@@ -11,9 +12,10 @@ using TaxiCentral.API.Infrastructure;
 namespace TaxiCentral.API.Infrastructure.Migrations
 {
     [DbContext(typeof(TaxiCentralContext))]
-    partial class TaxiCentralContextModelSnapshot : ModelSnapshot
+    [Migration("20220325121056_AddedRoute")]
+    partial class AddedRoute
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,7 +52,7 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bc5b9677-1d54-44c5-8d16-19c490dd04cb"),
+                            Id = new Guid("500cc348-5244-4777-9ce2-94e3b1822789"),
                             Name = "Darko",
                             Pin = "1234",
                             Surname = "Meshkovski"
@@ -92,7 +94,6 @@ namespace TaxiCentral.API.Infrastructure.Migrations
             modelBuilder.Entity("TaxiCentral.API.Models.Route", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ArrivalTime")
@@ -104,17 +105,11 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                     b.Property<string>("DriverComment")
                         .HasColumnType("nvarchar(MAX)");
 
-                    b.Property<Guid?>("DriverId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int?>("EstimatedTimeOfArrival")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ReportedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("RideId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -123,10 +118,6 @@ namespace TaxiCentral.API.Infrastructure.Migrations
                         .HasColumnType("nvarchar(MAX)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DriverId");
-
-                    b.HasIndex("RideId");
 
                     b.ToTable("Routes", (string)null);
                 });
@@ -184,13 +175,13 @@ namespace TaxiCentral.API.Infrastructure.Migrations
             modelBuilder.Entity("TaxiCentral.API.Models.Route", b =>
                 {
                     b.HasOne("TaxiCentral.API.Models.Driver", "Driver")
-                        .WithMany()
-                        .HasForeignKey("DriverId")
+                        .WithOne()
+                        .HasForeignKey("TaxiCentral.API.Models.Route", "Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TaxiCentral.API.Models.Ride", "Ride")
-                        .WithMany()
-                        .HasForeignKey("RideId")
+                        .WithOne()
+                        .HasForeignKey("TaxiCentral.API.Models.Route", "Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.OwnsOne("TaxiCentral.API.Models.LatLng", "TargetDestinationPoint", b1 =>

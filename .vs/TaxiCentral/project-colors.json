@@ -35,7 +35,17 @@
       "ProjectGuid": "cdaf83c3-e9a4-452c-af83-3eeb2916eb13",
       "DisplayName": "TaxiCentral.UnitTests",
       "ColorIndex": 5
+    },
+    "0aec603a-99bd-4b94-9219-947d57300664": {
+      "ProjectGuid": "0aec603a-99bd-4b94-9219-947d57300664",
+      "DisplayName": "TaxiCentral.Web",
+      "ColorIndex": 6
+    },
+    "bf70d479-ad4a-425f-b632-008be15567dc": {
+      "ProjectGuid": "bf70d479-ad4a-425f-b632-008be15567dc",
+      "DisplayName": "WebSPA",
+      "ColorIndex": 7
     }
   },
-  "NextColorIndex": 6
+  "NextColorIndex": 8
 }

@@ -21,6 +21,7 @@ namespace TaxiCentral.UnitTests
         private Mock<IRideRepository> _rideRepository;
         private Mock<IDriverRepository> _driverRepository;
         private Mock<IIdentityService> _identityService;
+        private Mock<IRouteRepository> _routeRepository;
         private Mock<IMapper> _mapper;
 
         public RidesControllerTest()
@@ -28,6 +29,7 @@ namespace TaxiCentral.UnitTests
             _rideRepository = new Mock<IRideRepository>();
             _driverRepository = new Mock<IDriverRepository>();
             _identityService = new Mock<IIdentityService>();
+            _routeRepository = new Mock<IRouteRepository>();
             _mapper = new Mock<IMapper>();
         }
 
@@ -35,7 +37,7 @@ namespace TaxiCentral.UnitTests
         public async Task GetRides_ReturnsOk()
         {
             // Arrange
-            var sut = new RidesController(_rideRepository.Object, _driverRepository.Object, _identityService.Object, _mapper.Object);
+            var sut = new RidesController(_rideRepository.Object, _driverRepository.Object, _identityService.Object, _mapper.Object, _routeRepository.Object);
 
             // Act
             var result = await sut.GetRides();
@@ -55,10 +57,10 @@ namespace TaxiCentral.UnitTests
                     new Ride
                     {
                         Id = Guid.NewGuid(),
-                        Driver = new Driver("Darko", "Meshkovski", "1234")
-                        {
-                            Id = Guid.NewGuid()
-                        }
+                        //Driver = new Driver("Darko", "Meshkovski", "1234")
+                        //{
+                        //    Id = Guid.NewGuid()
+                        //}
                     }
                 });
 
@@ -68,7 +70,7 @@ namespace TaxiCentral.UnitTests
                     new RideViewModel()
                 });
 
-            var sut = new RidesController(_rideRepository.Object, _driverRepository.Object, _identityService.Object, _mapper.Object);
+            var sut = new RidesController(_rideRepository.Object, _driverRepository.Object, _identityService.Object, _mapper.Object, _routeRepository.Object);
 
             // Act
             var result = await sut.GetRides();

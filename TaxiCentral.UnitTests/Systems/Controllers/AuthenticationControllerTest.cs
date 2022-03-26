@@ -2,13 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using System;
-using System.Configuration;
 using System.Threading.Tasks;
 using TaxiCentral.API.Controllers;
 using TaxiCentral.API.Infrastructure.Exceptions;
 using TaxiCentral.API.Infrastructure.Repositories;
-using TaxiCentral.API.Models;
 using TaxiCentral.UnitTests.Fixtures;
 using Xunit;
 

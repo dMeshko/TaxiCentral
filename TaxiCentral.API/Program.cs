@@ -26,6 +26,9 @@ builder.Services.AddControllers(x =>
     x.ReturnHttpNotAcceptable = true;
     x.OutputFormatters.RemoveType<StringOutputFormatter>();
 });
+
+var executingAssembly = Assembly.GetExecutingAssembly().GetName().Name;
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
@@ -54,6 +57,9 @@ builder.Services.AddSwaggerGen(x =>
             Array.Empty<string>()
         }
     });
+
+    var xmlCommentsFile = $"{executingAssembly}.xml";
+    x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlCommentsFile));
 });
 builder.Services.AddFluentValidationRulesToSwagger();
 
@@ -73,37 +79,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-//builder.Services.AddAuthorization(x =>
-//{
-//    x.AddPolicy("Driver", y =>
-//    {
-//        y.RequireAuthenticatedUser();
-//        y.RequireClaim("type", "driver");
-//    });
-
-//    x.AddPolicy("Dispatcher", y =>
-//    {
-//        y.RequireAuthenticatedUser();
-//        y.RequireClaim("type", "dispatcher");
-//    });
-
-//    x.AddPolicy("Admin", y =>
-//    {
-//        y.RequireAuthenticatedUser();
-//        y.RequireClaim("type", "admin");
-//    });
-//});
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<TaxiCentralContext>(x =>
 {
-    var migrationsAssembly = Assembly.GetExecutingAssembly().GetName().Name;
     x.UseSqlServer(builder.Configuration["ConnectionString"], 
-        y => y.MigrationsAssembly(migrationsAssembly));
+        y => y.MigrationsAssembly(executingAssembly));
 });
 
 builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<IIdentityService, IdentityService>();
 builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+builder.Services.AddScoped<IRouteRepository, RouteRepository>();
 builder.Services.AddScoped<IRideRepository, RideRepository>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -112,8 +99,8 @@ builder.Services.AddFluentValidation();
 
 var app = builder.Build();
 
-//if (app.Environment.IsProduction())
-//{
+if (app.Environment.IsProduction())
+{
     app.UseExceptionHandler(x =>
     {
         x.Run(async context =>
@@ -142,7 +129,7 @@ var app = builder.Build();
             }
         });
     });
-//}
+}
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
@@ -160,7 +147,6 @@ app.UseAuthorization();
 app.MapControllers()
     .RequireAuthorization();
 
-//todo: test this!!
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
